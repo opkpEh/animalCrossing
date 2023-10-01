@@ -9,8 +9,10 @@ public:
     bool musicPaused = false;
     Music music;
 
+    Camera2D cam;
+
     Game() {
-       
+
         InitWindow(screenWidth, screenHeight, "Animal Crossing");
         SetWindowState(FLAG_VSYNC_HINT);
         SetExitKey(0);
@@ -24,7 +26,9 @@ public:
         InitAudioDevice();
         music = LoadMusicStream("res/morning.mp3");
         PlayMusicStream(music);
-      
+
+        cam = Camera2D{ Vector2{(float)(GetScreenWidth() / 2.0f),(float)(GetScreenHeight() / 2.0f)}, Vector2{(playerDest.x - playerDest.width / 2),(playerDest.y - playerDest.height / 2)}, 0.0, 1.0 };
+
     }
 
     void drawScene()
@@ -70,14 +74,18 @@ public:
         {
             ResumeMusicStream(music);
         }
+
+        cam.target = Vector2{ (playerDest.x - playerDest.width / 2),(playerDest.y - playerDest.height / 2) };
     }
 
     void render() {
         BeginDrawing();
         ClearBackground(bkgColor);
+        BeginMode2D(cam);
 
         drawScene();
 
+        EndMode2D();
         EndDrawing();
     }
 
