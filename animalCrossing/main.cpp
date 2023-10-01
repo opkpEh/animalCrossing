@@ -6,6 +6,8 @@ public:
     Texture2D grassSprite, playerSprite;
     Rectangle playerSrc, playerDest;
     float playerSpeed=2.25;
+    bool musicPaused = false;
+    Music music;
 
     Game() {
        
@@ -18,6 +20,10 @@ public:
 
         playerSrc = Rectangle{ 0, 0, 48, 48 };
         playerDest = Rectangle{ 200, 200, 100, 100 };
+
+        InitAudioDevice();
+        music = LoadMusicStream("res/morning.mp3");
+        PlayMusicStream(music);
       
     }
 
@@ -46,11 +52,24 @@ public:
         {
             playerDest.x -= playerSpeed;
         }
+        if (IsKeyPressed(KEY_Q))
+        {
+            musicPaused = !musicPaused;
+        }
 
     }
-    void update() 
+    void update()
     {
         running = !WindowShouldClose();
+        UpdateMusicStream(music);
+        if (musicPaused)
+        {
+            PauseMusicStream(music);
+        }
+        else
+        {
+            ResumeMusicStream(music);
+        }
     }
 
     void render() {
@@ -66,6 +85,8 @@ public:
         CloseWindow();
         UnloadTexture(grassSprite);
         UnloadTexture(playerSprite);
+        UnloadMusicStream(music);
+        CloseAudioDevice;
     }   
 
     bool isRunning() const {
