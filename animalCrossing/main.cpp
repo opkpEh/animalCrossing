@@ -5,11 +5,19 @@ public:
 
     Texture2D grassSprite, playerSprite;
     Rectangle playerSrc, playerDest;
-    float playerSpeed=2.25;
-    bool musicPaused = false;
-    Music music;
+    float playerSpeed=3;
+    
+    bool playerMoving=false ;
+    int playerDir = 0;
+    bool playerUp = false, playerDown = false, playerLeft = false, playerRight = false;
+    int playerFrame=0;
+
+    int frameCount=0;
 
     Camera2D cam;
+
+    bool musicPaused = false;
+    Music music;
 
     Game() {
 
@@ -22,6 +30,7 @@ public:
 
         playerSrc = Rectangle{ 0, 0, 48, 48 };
         playerDest = Rectangle{ 200, 200, 100, 100 };
+        
 
         InitAudioDevice();
         music = LoadMusicStream("res/morning.mp3");
@@ -42,19 +51,27 @@ public:
     {
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))
         {
-            playerDest.y -= playerSpeed;
+            playerMoving = true;
+            playerDir = 1;
+            playerUp = true;
         }
         if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))
         {
-            playerDest.y += playerSpeed;
+            playerMoving = true;
+            playerDir = 0;
+            playerDown = true;
         }
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))
         {
-            playerDest.x += playerSpeed;
+            playerMoving = true;
+            playerDir = 3;
+            playerRight = true;
         }
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))
         {
-            playerDest.x -= playerSpeed;
+            playerMoving = true;
+            playerDir = 2;
+            playerLeft = true;
         }
         if (IsKeyPressed(KEY_Q))
         {
@@ -65,6 +82,29 @@ public:
     void update()
     {
         running = !WindowShouldClose();
+
+        playerSrc.x = 0;
+
+        if (playerMoving)
+        {
+            if (playerUp) { playerDest.y -= playerSpeed; }
+            if (playerDown) { playerDest.y += playerSpeed; }
+            if (playerLeft) { playerDest.x -= playerSpeed; }
+            if (playerRight) { playerDest.x += playerSpeed; }
+            if (frameCount % 8 == 1) { playerFrame++; }
+
+        }
+
+        frameCount++;
+
+        if (playerFrame > 3)
+        {
+            playerFrame = 0;
+        }
+
+        playerSrc.x = playerSrc.width * (float)playerFrame;
+        playerSrc.y = playerSrc.height * (float)playerDir;
+
         UpdateMusicStream(music);
         if (musicPaused)
         {
@@ -76,6 +116,13 @@ public:
         }
 
         cam.target = Vector2{ (playerDest.x - playerDest.width / 2),(playerDest.y - playerDest.height / 2) };
+
+        playerMoving = false;
+        playerUp = false;
+        playerDown = false;
+        playerRight = false;
+        playerLeft =  false;
+        
     }
 
     void render() {
