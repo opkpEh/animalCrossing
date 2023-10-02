@@ -15,6 +15,7 @@ public:
     int frameCount=0;
 
     Camera2D cam;
+    float cameraZoom = 2.0f;
 
     bool musicPaused = false;
     Music music;
@@ -37,7 +38,7 @@ public:
         PlayMusicStream(music);
 
         cam = Camera2D{ Vector2{(float)(GetScreenWidth() / 2.0f),(float)(GetScreenHeight() / 2.0f)}, Vector2{(playerDest.x - playerDest.width / 2),(playerDest.y - playerDest.height / 2)}, 0.0, 1.0 };
-
+        cam.zoom= cameraZoom;
     }
 
     void drawScene()
@@ -83,7 +84,8 @@ public:
     {
         running = !WindowShouldClose();
 
-        playerSrc.x = 0;
+
+        playerSrc.x = playerSrc.width * (float)playerFrame;
 
         if (playerMoving)
         {
@@ -92,15 +94,13 @@ public:
             if (playerLeft) { playerDest.x -= playerSpeed; }
             if (playerRight) { playerDest.x += playerSpeed; }
             if (frameCount % 8 == 1) { playerFrame++; }
-
         }
+        else if (frameCount % 45 == 1) { playerFrame++; }
 
         frameCount++;
 
-        if (playerFrame > 3)
-        {
-            playerFrame = 0;
-        }
+        if (playerFrame > 3) { playerFrame = 0; }
+        if (!playerMoving && playerFrame > 1) { playerFrame = 0; }
 
         playerSrc.x = playerSrc.width * (float)playerFrame;
         playerSrc.y = playerSrc.height * (float)playerDir;
@@ -149,8 +149,8 @@ public:
     }
 
 private:
-    const int screenWidth = 1000;
-    const int screenHeight = 480;
+    const int screenWidth = 1080;
+    const int screenHeight = 720;
     bool running = true;
     Color bkgColor = { 147, 211, 196, 255 };
 };
