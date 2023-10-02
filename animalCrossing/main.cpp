@@ -1,4 +1,7 @@
 #include <raylib.h>
+#include <vector>
+#include <string>
+#include <iostream>
 
 class Game {
 public:
@@ -14,6 +17,12 @@ public:
 
     int frameCount=0;
 
+    Rectangle tileDest, tileSrc;
+    //std::vector<int> tileMap = {};
+    int tileMap[25];
+    std::string srcMap ="";
+    int mapWidth = 0, mapHeight = 0;
+
     Camera2D cam;
     float cameraZoom = 2.0f;
 
@@ -27,6 +36,10 @@ public:
         SetExitKey(0);
 
         grassSprite = LoadTexture("res/Tilesets/Grass.png");
+
+        tileDest = Rectangle{ 0, 0, 16, 16 };
+        tileSrc = Rectangle{ 0, 0, 16, 16 };
+
         playerSprite = LoadTexture("res/Characters/BasicCharakterSpritesheet.png");
 
         playerSrc = Rectangle{ 0, 0, 48, 48 };
@@ -39,11 +52,29 @@ public:
 
         cam = Camera2D{ Vector2{(float)(GetScreenWidth() / 2.0f),(float)(GetScreenHeight() / 2.0f)}, Vector2{(playerDest.x - playerDest.width / 2),(playerDest.y - playerDest.height / 2)}, 0.0, 1.0 };
         cam.zoom= cameraZoom;
+
+        loadMap();
+
     }
 
     void drawScene()
     {
-        DrawTexture(grassSprite, 100, 50, WHITE);
+        //DrawTexture(grassSprite, 100, 50, WHITE);
+        for (int i = 0; i<25; i++)
+        {
+            if (tileMap[i] != 0)
+            {
+                tileDest.x = tileDest.width * (float)(i % mapWidth);
+                tileDest.y = tileDest.height * (float)(i / mapWidth);
+
+                tileSrc.x = tileSrc.width * (float)((tileMap[i] - 1) % (int)(grassSprite.width / (int)tileSrc.width));
+                tileSrc.y = tileSrc.height * (float)((tileMap[i] - 1) / (int)(grassSprite.width / (int)tileSrc.width));
+
+                DrawTexturePro(grassSprite, tileSrc, tileDest, Vector2{ tileDest.width, tileDest.height }, 0, WHITE);
+            }
+        }
+
+
         DrawTexturePro(playerSprite, playerSrc, playerDest, Vector2{ playerDest.width, playerDest.height }, 0, WHITE);
     }
     
@@ -136,6 +167,16 @@ public:
         EndDrawing();
     }
 
+    void loadMap()
+    {
+        mapWidth = 5;
+        mapHeight = 5;
+        for (int i = 0; i < (mapWidth * mapHeight); i++)
+        {
+            tileMap[i] = 1;
+        }
+    }
+
     void quit() {
         CloseWindow();
         UnloadTexture(grassSprite);
@@ -149,8 +190,8 @@ public:
     }
 
 private:
-    const int screenWidth = 1080;
-    const int screenHeight = 720;
+    const int screenWidth = 1000;
+    const int screenHeight = 460;
     bool running = true;
     Color bkgColor = { 147, 211, 196, 255 };
 };
